@@ -180,6 +180,10 @@ class CalendarOrtodoxAPI:
                 if saints_link:
                     saints_text = saints_link.get_text(strip=True)
                     
+                    # Log for debugging
+                    if day_num == 25 and month_idx == 3:
+                        _LOGGER.info("March 25 - Found sinaxar link with text: %r", saints_text)
+                    
                     # Determine feast level by counting crosses/daggers
                     feast_level = FEAST_LEVEL_NORMAL
                     if is_feast or "†" in saints_text or "(†)" in saints_text:
@@ -190,6 +194,9 @@ class CalendarOrtodoxAPI:
                         is_feast = True
                 else:
                     # No sinaxar link - extract text more carefully
+                    if day_num == 25 and month_idx == 3:
+                        _LOGGER.warning("March 25 - NO sinaxar link found! Content cell HTML: %s", str(content_cell)[:500])
+                    
                     # First, try to get direct text nodes (excluding spans and other elements)
                     saints_text_parts = []
                     for element in content_cell.children:
@@ -232,6 +239,13 @@ class CalendarOrtodoxAPI:
                     # If saints_text is empty or just a number, use a placeholder
                     if not saints_text or saints_text.isdigit():
                         saints_text = f"Ziua {day_num} {MONTHS_RO[month_idx]}"
+                        if day_num == 25 and month_idx == 3:
+                            _LOGGER.warning("March 25 - Using placeholder text: %r", saints_text)
+                
+                # Log final value for March 25
+                if day_num == 25 and month_idx == 3:
+                    _LOGGER.info("March 25 - Final saints_text: %r, feast_day: %s, feast_level: %s", 
+                                 saints_text, is_feast, feast_level)
                 
                 # Extract moon phase
                 moon_phase = None
