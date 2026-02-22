@@ -4,7 +4,7 @@
 
 Monitorizează zilnic sfinții, sărbătorile, posturile și citirile liturgice direct din Home Assistant.
 
-> **Status:** ✅ **v1.0.0 - Ready for Use!**
+> **Status:** ✅ **v1.0.7 - Stable Release**
 
 ---
 
@@ -222,6 +222,30 @@ entities:
 - **Prima actualizare:** Imediat după configurare
 - **Cache:** Datele sunt cache-uite pentru a reduce solicitările
 
+### Serviciu Manual de Reîmprospătare
+
+Poți forța o actualizare imediată a datelor calendarului folosind serviciul:
+
+```yaml
+service: calendar_ortodox.refresh_calendar
+```
+
+**Utilizări:**
+- **Developer Tools:** Settings → Developer Tools → Services → Calendar Ortodox: Refresh calendar
+- **Automation:** Adaugă serviciul în automatizările tale
+- **Scripts:** Include serviciul în scripturi pentru actualizări la cerere
+
+**Exemplu automation:**
+```yaml
+automation:
+  - alias: "Refresh Calendar Daily"
+    trigger:
+      - platform: time
+        at: "06:00:00"
+    action:
+      - service: calendar_ortodox.refresh_calendar
+```
+
 ---
 
 ## 📦 Structură Fișiere
@@ -257,12 +281,21 @@ custom_components/calendar_ortodox/
 1. Verifică conexiunea la internet
 2. Site-ul noutati-ortodoxe.ro poate fi temporar offline
 3. Integrarea va reîncerca automat la următoarea actualizare
+4. Forțează o actualizare manuală: `service: calendar_ortodox.refresh_calendar`
 
 ### Date lipsă sau incomplete
 
 - Unele zile pot avea mai puține informații
 - Citirile liturgice sunt disponibile doar duminica
 - Informațiile despre post variază în funcție de perioadă
+- **Soluție:** Folosește serviciul `calendar_ortodox.refresh_calendar` pentru a reîmprospăta datele
+
+### Nume sfinți lipsă sau incorecte
+
+Dacă vezi "Ziua X luna" în loc de numele sfântului:
+1. Apelează serviciul: `calendar_ortodox.refresh_calendar`
+2. Verifică log-urile pentru mesaje de debug
+3. Raportează problema pe GitHub Issues cu detalii despre ziua problemă
 
 ### Debug
 
@@ -275,6 +308,8 @@ logger:
     custom_components.calendar_ortodox: debug
     custom_components.calendar_ortodox.api: debug
 ```
+
+Apoi restartează Home Assistant și apelează `calendar_ortodox.refresh_calendar` pentru a genera log-uri detaliate.
 
 ---
 

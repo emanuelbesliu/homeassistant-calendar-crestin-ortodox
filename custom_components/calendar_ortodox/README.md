@@ -2,6 +2,8 @@
 
 A Home Assistant custom integration that provides Orthodox Christian calendar information from [noutati-ortodoxe.ro](https://www.noutati-ortodoxe.ro/calendar-ortodox/).
 
+> **Current Version:** v1.0.7
+
 ## Features
 
 ### Calendar Entities
@@ -11,6 +13,9 @@ A Home Assistant custom integration that provides Orthodox Christian calendar in
 ### Sensor Entities
 - **Sfântul Zilei** (Saint of the Day) - Current day's saints and information
 - **Următoarea Sărbătoare** (Next Feast Day) - Upcoming feast day with countdown
+
+### Services
+- **refresh_calendar** - Manually force a data refresh from the website
 
 ### Information Provided
 - ✝️ Daily saints (Sfinți)
@@ -96,6 +101,25 @@ The integration provides detailed fasting information:
 - **Zi aliturgică** - No liturgy
 
 ## Usage Examples
+
+### Service: Manual Refresh
+
+Force an immediate refresh of calendar data:
+
+```yaml
+service: calendar_ortodox.refresh_calendar
+```
+
+Use in automations:
+```yaml
+automation:
+  - alias: "Refresh Calendar Every Morning"
+    trigger:
+      - platform: time
+        at: "06:00:00"
+    action:
+      - service: calendar_ortodox.refresh_calendar
+```
 
 ### Automation: Birthday Greeting for Name Day
 ```yaml
