@@ -158,7 +158,13 @@ class CalendarOrtodoxAPI:
                 
                 day_cell = row.find("td", class_="ziua")
                 day_of_week_cell = row.find("td", class_="sapt")
-                content_cell = row.find("td", recursive=False)  # Third cell
+                
+                # Find the third cell (content cell) - it has no class attribute
+                all_cells = row.find_all("td", recursive=False)
+                content_cell = None
+                if len(all_cells) >= 3:
+                    # Third cell is the content (index 2)
+                    content_cell = all_cells[2]
                 
                 if not day_cell or not day_of_week_cell or not content_cell:
                     continue
