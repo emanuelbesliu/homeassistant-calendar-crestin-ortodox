@@ -218,18 +218,20 @@ class CalendarOrtodoxAPI:
                     if any(keyword in comment_text for keyword in ["Post", "Dezlegare", "pâine", "aliturgică"]):
                         fasting_info.append(comment_text)
                 
-                # Clean up saints_text - remove fasting comments and day numbers
-                for fasting in fasting_info:
-                    saints_text = saints_text.replace(fasting, "")
-                
-                # Remove standalone numbers (likely day numbers that got included)
-                saints_text = re.sub(r'^\d+\s*', '', saints_text)  # Remove leading numbers
-                saints_text = re.sub(r'\s*\d+$', '', saints_text)  # Remove trailing numbers
-                saints_text = saints_text.strip()
-                
-                # If saints_text is empty or just a number, use a placeholder
-                if not saints_text or saints_text.isdigit():
-                    saints_text = f"Ziua {day_num} {MONTHS_RO[month_idx]}"
+                # Clean up saints_text only if it wasn't from a sinaxar link
+                if not saints_link:
+                    # Remove fasting comments
+                    for fasting in fasting_info:
+                        saints_text = saints_text.replace(fasting, "")
+                    
+                    # Remove standalone numbers (likely day numbers that got included)
+                    saints_text = re.sub(r'^\d+\s*', '', saints_text)  # Remove leading numbers
+                    saints_text = re.sub(r'\s*\d+$', '', saints_text)  # Remove trailing numbers
+                    saints_text = saints_text.strip()
+                    
+                    # If saints_text is empty or just a number, use a placeholder
+                    if not saints_text or saints_text.isdigit():
+                        saints_text = f"Ziua {day_num} {MONTHS_RO[month_idx]}"
                 
                 # Extract moon phase
                 moon_phase = None
