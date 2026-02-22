@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date, datetime
 from typing import Any
 
@@ -18,6 +19,13 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+# Romanian month names
+MONTHS_RO = {
+    1: "ianuarie", 2: "februarie", 3: "martie", 4: "aprilie",
+    5: "mai", 6: "iunie", 7: "iulie", 8: "august",
+    9: "septembrie", 10: "octombrie", 11: "noiembrie", 12: "decembrie"
+}
 
 
 class OrthodoxCalendarDay:
@@ -181,7 +189,25 @@ class CalendarOrtodoxAPI:
                             feast_level = FEAST_LEVEL_MAJOR
                         is_feast = True
                 else:
-                    saints_text = content_cell.get_text(strip=True)
+                    # No sinaxar link - extract text more carefully
+                    # First, try to get direct text nodes (excluding spans and other elements)
+                    saints_text_parts = []
+                    for element in content_cell.children:
+                        if isinstance(element, str):
+                            text = element.strip()
+                            if text:
+                                saints_text_parts.append(text)
+                        elif element.name == "a":
+                            text = element.get_text(strip=True)
+                            if text:
+                                saints_text_parts.append(text)
+                    
+                    saints_text = " ".join(saints_text_parts).strip()
+                    
+                    # If still empty, fall back to getting all text
+                    if not saints_text:
+                        saints_text = content_cell.get_text(strip=True)
+                    
                     feast_level = FEAST_LEVEL_NORMAL
                 
                 # Extract fasting info from comments
@@ -191,6 +217,19 @@ class CalendarOrtodoxAPI:
                     comment_text = comment.get_text(strip=True)
                     if any(keyword in comment_text for keyword in ["Post", "Dezlegare", "pâine", "aliturgică"]):
                         fasting_info.append(comment_text)
+                
+                # Clean up saints_text - remove fasting comments and day numbers
+                for fasting in fasting_info:
+                    saints_text = saints_text.replace(fasting, "")
+                
+                # Remove standalone numbers (likely day numbers that got included)
+                saints_text = re.sub(r'^\d+\s*', '', saints_text)  # Remove leading numbers
+                saints_text = re.sub(r'\s*\d+$', '', saints_text)  # Remove trailing numbers
+                saints_text = saints_text.strip()
+                
+                # If saints_text is empty or just a number, use a placeholder
+                if not saints_text or saints_text.isdigit():
+                    saints_text = f"Ziua {day_num} {MONTHS_RO[month_idx]}"
                 
                 # Extract moon phase
                 moon_phase = None
