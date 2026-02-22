@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -17,6 +17,8 @@ from .const import DOMAIN, SCAN_INTERVAL
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.CALENDAR, Platform.SENSOR]
+
+SERVICE_REFRESH_CALENDAR = "refresh_calendar"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -36,6 +38,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # Register the refresh service
+    async def handle_refresh_calendar(call: ServiceCall) -> None:
+        """Handle the refresh_calendar service call."""
+        _LOGGER.info("Manual calendar refresh requested")
+        await coordinator.async_request_refresh()
+        _LOGGER.info("Calendar refresh completed")
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_REFRESH_CALENDAR,
+        handle_refresh_calendar,
+    )
+
     return True
 
 
@@ -43,6 +58,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         hass.data[DOMAIN].pop(entry.entry_id)
+        
+        # Unregister service when last entry is removed
+        if not hass.data[DOMAIN]:
+            hass.services.async_remove(DOMAIN, SERVICE_REFRESH_CALENDAR)
 
     return unload_ok
 

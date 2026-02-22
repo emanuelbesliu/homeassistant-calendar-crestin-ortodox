@@ -17,5 +17,11 @@
     "abort": {
       "already_configured": "Calendarul Ortodox este deja configurat."
     }
+  },
+  "services": {
+    "refresh_calendar": {
+      "name": "Reîmprospătează calendarul",
+      "description": "Forțează reîmprospătarea datelor calendarului de pe site, ștergând datele din cache."
+    }
   }
 }

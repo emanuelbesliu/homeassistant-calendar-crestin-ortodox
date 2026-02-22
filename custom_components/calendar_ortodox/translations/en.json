@@ -17,5 +17,11 @@
     "abort": {
       "already_configured": "Calendar Ortodox is already configured."
     }
+  },
+  "services": {
+    "refresh_calendar": {
+      "name": "Refresh calendar",
+      "description": "Force refresh the calendar data from the website, clearing any cached data."
+    }
   }
 }

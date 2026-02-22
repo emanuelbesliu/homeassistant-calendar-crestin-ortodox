@@ -1,0 +1,4 @@
+refresh_calendar:
+  name: Refresh Calendar
+  description: Force refresh the calendar data from the website, clearing any cached data.
+  fields: {}
