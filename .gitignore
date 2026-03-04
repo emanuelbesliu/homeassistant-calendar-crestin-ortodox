@@ -55,3 +55,14 @@ htmlcov/
 /custom_components/adminislocuinte/
 /custom_components/bft/
 /automations/
+
+# Release artifacts (should only exist in GitHub Releases)
+*.zip
+RELEASE_*.md
+GITHUB_PUSH_SUMMARY.md
+
+# Verbose documentation (keep only README.md, CHANGELOG.md, info.md)
+AUTO_VERSIONING.md
+DEPENDABOT.md
+WORKFLOWS.md
+SETUP.md
