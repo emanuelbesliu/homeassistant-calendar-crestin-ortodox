@@ -79,19 +79,23 @@ jobs:
       - name: Update requirements in manifest.json
         run: |
           if [ -f "requirements.txt" ]; then
-            REQUESTS_VERSION=$(grep "^requests" requirements.txt | head -1)
-            if [ -n "$REQUESTS_VERSION" ]; then
-              python << PYTHON_SCRIPT
+            python << 'PYTHON_SCRIPT'
           import json
+
+          # Read current requirements from requirements.txt
+          with open('requirements.txt') as f:
+              reqs = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+
+          # Update manifest.json
           with open('custom_components/calendar_ortodox/manifest.json', 'r') as f:
               manifest = json.load(f)
-          manifest['requirements'] = ['$REQUESTS_VERSION']
+          if reqs:
+              manifest['requirements'] = reqs
           with open('custom_components/calendar_ortodox/manifest.json', 'w') as f:
               json.dump(manifest, f, indent=2)
               f.write('\n')
+          print(f"Synced requirements: {reqs}")
           PYTHON_SCRIPT
-              echo "Synced requirements: $REQUESTS_VERSION"
-            fi
           fi
 
       - name: Update CHANGELOG.md
@@ -124,7 +128,7 @@ jobs:
           NEW_VERSION="${{ steps.new_version.outputs.new_version }}"
           ZIP_NAME="calendar-ortodox-v${NEW_VERSION}.zip"
           cd custom_components/calendar_ortodox
-          zip -r "../../${ZIP_NAME}" __init__.py cover.py manifest.json
+          zip -r "../../${ZIP_NAME}" *.py manifest.json services.yaml strings.json translations/
           cd ../..
           echo "Created ${ZIP_NAME}"
           echo "zip_name=${ZIP_NAME}" >> $GITHUB_ENV
@@ -161,7 +165,7 @@ jobs:
 
           This release includes dependency updates from Dependabot.
 
-          **Full Changelog**: See [CHANGELOG.md](https://github.com/emanuelbesliu/calendar-ortodox/blob/main/CHANGELOG.md)
+          **Full Changelog**: See [CHANGELOG.md](https://github.com/emanuelbesliu/homeassistant-calendar-crestin-ortodox/blob/main/CHANGELOG.md)
 
           ## Installation
 
@@ -188,7 +192,7 @@ jobs:
           
           ✅ **Version:** v${{ steps.new_version.outputs.new_version }}
           ✅ **Trigger:** PR #${{ github.event.pull_request.number }}
-          ✅ **Release:** https://github.com/emanuelbesliu/calendar-ortodox/releases/tag/v${{ steps.new_version.outputs.new_version }}
+          ✅ **Release:** https://github.com/emanuelbesliu/homeassistant-calendar-crestin-ortodox/releases/tag/v${{ steps.new_version.outputs.new_version }}
           
           ### Changes Made:
           - Updated manifest.json to v${{ steps.new_version.outputs.new_version }}
